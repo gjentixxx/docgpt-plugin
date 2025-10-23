@@ -1,0 +1,146 @@
+openapi: 3.0.1
+info:
+  title: Document Q&A and Summarization API
+  description: |
+    This API allows users to upload documents (PDFs or plain text), provide a URL or
+    raw text, and either generate a concise summary or answer questions about the
+    content. It is intended to be used as a ChatGPT plugin to make reading and
+    analysing long documents fast and easy. Summaries are composed of the most
+    informative sentences in the document, while the question answering endpoint
+    returns the sentences that best match the user’s query.
+  version: "1.0.0"
+servers:
+  - url: http://localhost:3333
+paths:
+  /summarize:
+    post:
+      summary: Summarize a document
+      operationId: summarize
+      description: |
+        Provide a URL, file or raw text and receive a summary consisting of the
+        most informative sentences. Exactly one of `url`, `file` or `text`
+        must be supplied. The `sentences` field controls how many sentences
+        appear in the summary (default is 5).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  description: URL to fetch content from. Must be HTTP or HTTPS.
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload. Accepts PDF or plain text files.
+                text:
+                  type: string
+                  description: Raw text to summarise.
+                sentences:
+                  type: integer
+                  description: Number of sentences to include in the summary.
+                  default: 5
+              oneOf:
+                - required: [url]
+                - required: [file]
+                - required: [text]
+      responses:
+        '200':
+          description: Successful summary response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary:
+                    type: string
+                    description: The generated summary.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /answer:
+    post:
+      summary: Answer a question about a document
+      operationId: answer
+      description: |
+        Provide a question along with a document (via URL, file upload or raw
+        text) and receive the most relevant sentences as an answer. Exactly
+        one of `url`, `file` or `text` must accompany the question. The
+        `top_sentences` field determines how many sentences are returned (default
+        is 3).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - question
+              properties:
+                question:
+                  type: string
+                  description: The question to answer about the document.
+                url:
+                  type: string
+                  description: URL to fetch content from.
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload. Accepts PDF or plain text files.
+                text:
+                  type: string
+                  description: Raw text to use as the document.
+                top_sentences:
+                  type: integer
+                  description: Number of sentences to include in the answer.
+                  default: 3
+              oneOf:
+                - required: [question, url]
+                - required: [question, file]
+                - required: [question, text]
+      responses:
+        '200':
+          description: Successful answer response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answer:
+                    type: string
+                    description: The extracted answer sentences.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string

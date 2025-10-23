@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "DocGPT",
+  "name_for_model": "doc_gpt",
+  "description_for_human": "Summarize documents and answer questions from PDFs, web pages or plain text directly within ChatGPT.",
+  "description_for_model": "Use this plugin to read, summarise and answer questions about documents. Users can supply a URL, upload a PDF or text file, or provide raw text. When asked to summarise a document, call the `/summarize` endpoint with the provided content and desired length. When asked a question about a document, call the `/answer` endpoint with the question and the document.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://localhost:3333/openapi.yaml"
+  },
+  "logo_url": "http://localhost:3333/logo.png",
+  "contact_email": "support@example.com",
+  "legal_info_url": "http://example.com/legal"
+}
