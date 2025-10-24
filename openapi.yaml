@@ -1,5 +1,9 @@
 openapi: 3.0.1
 info:
+
+servers:
+  - url: https://docgpt-plugin.onrender.com
+
   title: Document Q&A and Summarization API
   description: |
     This API allows users to upload documents (PDFs or plain text), provide a URL or
