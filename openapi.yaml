@@ -1,10 +1,6 @@
 openapi: 3.0.1
 info:
-
-servers:
-  - url: https://docgpt-plugin.onrender.com
-
-  title: Document Q&A and Summarization API
+  title: DocGPT Plugin API
   description: |
     This API allows users to upload documents (PDFs or plain text), provide a URL or
     raw text, and either generate a concise summary or answer questions about the
@@ -13,18 +9,15 @@ servers:
     informative sentences in the document, while the question answering endpoint
     returns the sentences that best match the user’s query.
   version: "1.0.0"
+
 servers:
-  - url: http://localhost:3333
+  - url: https://docgpt-plugin.onrender.com
+
 paths:
   /summarize:
     post:
-      summary: Summarize a document
       operationId: summarize
-      description: |
-        Provide a URL, file or raw text and receive a summary consisting of the
-        most informative sentences. Exactly one of `url`, `file` or `text`
-        must be supplied. The `sentences` field controls how many sentences
-        appear in the summary (default is 5).
+      summary: Summarize a document from a URL, uploaded file, or raw text
       requestBody:
         required: true
         content:
@@ -34,25 +27,24 @@ paths:
               properties:
                 url:
                   type: string
-                  description: URL to fetch content from. Must be HTTP or HTTPS.
+                  nullable: true
+                  description: Public URL to fetch and summarize
+                text:
+                  type: string
+                  nullable: true
+                  description: Raw text to summarize
                 file:
                   type: string
                   format: binary
-                  description: The file to upload. Accepts PDF or plain text files.
-                text:
-                  type: string
-                  description: Raw text to summarise.
+                  nullable: true
+                  description: PDF or text file to summarize
                 sentences:
                   type: integer
-                  description: Number of sentences to include in the summary.
                   default: 5
-              oneOf:
-                - required: [url]
-                - required: [file]
-                - required: [text]
+                  description: Number of sentences in the summary
       responses:
-        '200':
-          description: Successful summary response
+        "200":
+          description: Summary result
           content:
             application/json:
               schema:
@@ -60,68 +52,45 @@ paths:
                 properties:
                   summary:
                     type: string
-                    description: The generated summary.
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+        "400":
+          description: Bad request
+        "500":
+          description: Server error
+
   /answer:
     post:
-      summary: Answer a question about a document
       operationId: answer
-      description: |
-        Provide a question along with a document (via URL, file upload or raw
-        text) and receive the most relevant sentences as an answer. Exactly
-        one of `url`, `file` or `text` must accompany the question. The
-        `top_sentences` field determines how many sentences are returned (default
-        is 3).
+      summary: Answer a question based on a document
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              required:
-                - question
               properties:
                 question:
                   type: string
-                  description: The question to answer about the document.
+                  description: The user’s question
                 url:
                   type: string
-                  description: URL to fetch content from.
+                  nullable: true
+                  description: Public URL to fetch and read
+                text:
+                  type: string
+                  nullable: true
+                  description: Raw text to search for answers
                 file:
                   type: string
                   format: binary
-                  description: The file to upload. Accepts PDF or plain text files.
-                text:
-                  type: string
-                  description: Raw text to use as the document.
+                  nullable: true
+                  description: PDF or text file to analyze
                 top_sentences:
                   type: integer
-                  description: Number of sentences to include in the answer.
                   default: 3
-              oneOf:
-                - required: [question, url]
-                - required: [question, file]
-                - required: [question, text]
+                  description: Number of sentences to return
       responses:
-        '200':
-          description: Successful answer response
+        "200":
+          description: Answer result
           content:
             application/json:
               schema:
@@ -129,22 +98,7 @@ paths:
                 properties:
                   answer:
                     type: string
-                    description: The extracted answer sentences.
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+        "400":
+          description: Bad request
+        "500":
+          description: Server error
